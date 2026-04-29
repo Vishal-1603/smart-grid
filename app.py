@@ -33,18 +33,21 @@ def fetch_latest_data():
 
         if valid_items:
             valid_items.sort(key=lambda x: x.get('timestamp', ''))
-            latest = valid_items[-1]
-            latest_timestamp = latest.get('timestamp', '')
-
-            if latest_timestamp:
-                data_time = datetime.fromisoformat(latest_timestamp)
-                now_time = datetime.utcnow()
-                age_seconds = (now_time - data_time).total_seconds()
-
-                if age_seconds > 10:
-                    return None
-
-            return {k: float(v) for k, v in latest['payload']['devices'].items()}
+            now_time = datetime.utcnow()
+            
+            # Loop backwards to find the newest data that isn't from the "future"
+            for item in reversed(valid_items):
+                ts_str = item.get('timestamp', '')
+                if ts_str:
+                    try:
+                        data_time = datetime.fromisoformat(ts_str)
+                        age_seconds = (now_time - data_time).total_seconds()
+                        
+                        # Valid if it's within the last 15 seconds and not too far in the future
+                        if -5 <= age_seconds <= 15:
+                            return {k: float(v) for k, v in item['payload']['devices'].items()}
+                    except Exception:
+                        pass
 
     except Exception as e:
         st.warning(f"AWS fetch failed: {e}")
