@@ -38,7 +38,7 @@ def fetch_latest_data():
 
             if latest_timestamp:
                 data_time = datetime.fromisoformat(latest_timestamp)
-                now_time = datetime.now()
+                now_time = datetime.utcnow()
                 age_seconds = (now_time - data_time).total_seconds()
 
                 if age_seconds > 10:
@@ -61,10 +61,10 @@ def send_manual_to_dynamodb(device_power):
         )
         table = dynamodb.Table('SmartGridData')
         table.put_item(Item={
-            'timestamp': datetime.now().strftime("%Y-%m-%dT%H:%M:%S"),
+            'timestamp': datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S"),
             'payload': {
                 'devices': {k: str(v) for k, v in device_power.items()},
-                'timestamp': datetime.now().strftime("%Y-%m-%dT%H:%M:%S"),
+                'timestamp': datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S"),
                 'source': 'manual'
             }
         })

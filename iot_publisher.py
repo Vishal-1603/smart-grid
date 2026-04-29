@@ -31,7 +31,7 @@ print("✅ Connected to AWS IoT Core!")
 try:
     while True:
         payload = {
-            "timestamp": time.strftime("%Y-%m-%dT%H:%M:%S"),
+            "timestamp": time.strftime("%Y-%m-%dT%H:%M:%S", time.gmtime()),
             "devices": {
                 d: round(random.uniform(lo, hi), 2)
                 for d, (lo, hi) in devices.items()
